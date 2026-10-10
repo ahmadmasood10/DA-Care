@@ -1,6 +1,10 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import path from 'path';
+import { createRequire } from 'module';
+
+const require = createRequire(import.meta.url);
+
 export default defineConfig({
     plugins: [react()],
     resolve: { alias: { '@': path.resolve(__dirname, './src') } },
@@ -15,17 +19,14 @@ export default defineConfig({
     build: {
         outDir: 'dist',
         sourcemap: false,
-        chunkSizeWarningLimit: 1500,
+        target: 'es2020',
+        chunkSizeWarningLimit: 600,
         rollupOptions: {
             output: {
                 manualChunks: {
-                    // React core
-                    'vendor-react': ['react', 'react-dom', 'react-router-dom'],
-                    // Data fetching
+                    // Long-term cacheable vendor chunks — they change far less often than app code.
+                    'vendor-react': ['react', 'react-dom', 'react-router-dom', 'react-helmet-async'],
                     'vendor-query': ['@tanstack/react-query', 'axios'],
-                    // Three.js (largest — isolated to its own chunk)
-                    'vendor-three': ['three', '@react-three/fiber', '@react-three/drei'],
-                    // Icons
                     'vendor-icons': ['lucide-react'],
                 },
             },
